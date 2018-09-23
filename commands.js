@@ -216,16 +216,16 @@ function onMessage( msg )
 			else
 				if ( permissions.userHasCommand( msg.author, cmd ) )
 				{
-					let guildname = '<pm>'
-					if ( msg.guild )
-						guildname = '(' + msg.guild.name + ')'
+					let channelName = 'a direct message'
+					if( msg.guild ) 
+						channelName = _.fmt( '#%s (%s)', msg.channel.name, msg.guild.name )
 					
 					// put < > around links so they don't clutter up the owner's crash logs too much
 					let fullContent = msg.content
 					fullContent = _.filterlinks( fullContent )
 					
 					commands.numSinceBoot++
-					_.log( _.fmt( '%s#%s in #%s %s: %s', msg.author.username, msg.author.discriminator, msg.channel.name, guildname, fullContent ) )
+					_.log( _.fmt( '%s#%s in %s: %s', msg.author.username, msg.author.discriminator, channelName, fullContent ) )
 					
 					if ( checkArgs( cmd, args ) )
 						return cmd.callback( client, msg, args )
