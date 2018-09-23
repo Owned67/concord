@@ -8,8 +8,7 @@ const _ = require( '../helper.js' )
 
 const fs = require( 'fs' )
 const path = require( 'path' )
-const spawn = require('child_process').spawn
-const exec = require('child_process').exec
+const child_process = require( 'child_process' )
 
 const request = require('request')
 const youtube_dl = require( 'youtube-dl' )
@@ -51,9 +50,24 @@ function formatTime( sec )
 	return moment.duration( sec * 1000 ).format( 'mm:ss', { forceLength: true, trim: false } )
 }
 
+let ffmpeg_cmd = false
 const audioBots = []
 function initAudio()
 {
+	for ( const dir of [process.cwd()].concat( process.env.PATH.split( path.delimiter ) ) )
+	{
+		const cmd = `${dir}${path.sep}ffmpeg`
+		if ( fs.existsSync( cmd ) )
+		{
+			ffmpeg_cmd = cmd
+			break
+		}
+	}
+	if ( !ffmpeg_cmd )
+		return _.log( 'NO FFMPEG FOUND -- audio will not be usable' )
+	else
+		_.log( 'using ffmpeg: ' + ffmpeg_cmd )
+
 	client.concord_audioSessions = {}
 	client.on( 'voiceStateUpdate', ( o, n ) => audioBotMoved( client, o, n ) )
 	audioBots.push( client )
@@ -440,8 +454,8 @@ function start_player( sess, forceseek )
 	params.push( '-loglevel', loglevel )
 	params.push( 'pipe:1' )
 
-	//console.log( params.join( ' ' ) )
-	sess.ffmpeg = spawn( 'ffmpeg', params )
+	//console.log( ffmpeg_cmd, params.join( ' ' ).replace( /&/g, '%26' ) )
+	sess.ffmpeg = child_process.spawn( ffmpeg_cmd, params )
 	if ( settings.get( 'audio', 'log_ffmpeg_errors', false ) )
 		sess.ffmpeg.stderr.on( 'data', e => { console.log( `[ffmpeg]  ${e.toString()}` ) })
 
@@ -683,7 +697,7 @@ function probeLength( url )
 	const promise = new Promise(
 		( resolve, reject ) =>
 		{
-			exec( `ffprobe -v quiet -print_format json -show_format ${ url }`,
+			child_process.exec( `ffprobe -v quiet -print_format json -show_format ${ url }`,
 				( err, stdout, stderr ) =>
 					{
 						if ( err )
