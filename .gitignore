@@ -8,3 +8,4 @@ temp/*
 npm-debug.log
 screenlog.0
 crash.log
+ffmpeg
