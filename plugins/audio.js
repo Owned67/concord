@@ -724,7 +724,7 @@ function parseFile( url )
 	return promise
 }
 
-function postQuery( songInfo )
+function postQuery( songInfo, reject )
 {
 	return songInfo
 }
@@ -741,7 +741,7 @@ function queryRemote( url )
 						( err, info ) => 
 						{
 							parseYoutube( { url, err, info } )
-								.then( songInfo => resolve( postQuery( songInfo ) ) )
+								.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
 								.catch( reason => reject( reason ) )
 						})
 				
@@ -752,7 +752,7 @@ function queryRemote( url )
 						( err, info ) =>
 						{
 							parseGeneric( { url, err, info } )
-								.then( songInfo => resolve( postQuery( songInfo ) ) )
+								.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
 								.catch( reason => reject( reason ) )
 						})
 
@@ -765,7 +765,7 @@ function queryRemote( url )
 							{
 								if ( !error && response.statusCode === 200 )
 									parseFile( url )
-										.then( songInfo => resolve( postQuery( songInfo ) ) )
+										.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
 										.catch( reason => reject( reason ) )
 								else
 									reject( `remote file error ${ error }` )
