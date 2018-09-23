@@ -586,96 +586,96 @@ function parseLength( url, len_sec, reject )
 
 function parseYoutube( args )
 {
-	const msg = args.msg
-	const url = args.url
+	const promise = new Promise(
+		( resolve, reject ) =>
+		{
+			const url = args.url
+			const err = args.err
+			const info = args.info
 
-	const resolve = args.resolve
-	const reject = args.reject
+			if ( err )
+				return reject( queryErr( err ) )
 
-	const err = args.err
-	const info = args.info
+			let songInfo = {}
+			songInfo.url = url
+			songInfo.title = info.title
 
-	if ( err )
-		return reject( queryErr( err ) )
+			const len_sec = info.length_seconds
+			const parsedLen = parseLength( url, len_sec, reject )
+			songInfo = Object.assign( parsedLen, songInfo )
 
-	let songInfo = {}
-	songInfo.url = url
-	songInfo.title = info.title
+			songInfo.streamurl = info.url
+			if ( info.formats )
+			{
+				songInfo.streamurl = info.formats[0].url
 
-	const len_sec = info.length_seconds
-	const parsedLen = parseLength( url, len_sec, reject )
-	songInfo = Object.assign( parsedLen, songInfo )
+				const desiredStream = findDesiredBitrate( info.formats )
+				if ( desiredStream )
+					songInfo.streamurl = desiredStream
+			}
 
-	songInfo.streamurl = info.url
-	if ( info.formats )
-	{
-		songInfo.streamurl = info.formats[0].url
-
-		const desiredStream = findDesiredBitrate( info.formats )
-		if ( desiredStream )
-			songInfo.streamurl = desiredStream
-	}
-
-	resolve( songInfo )
+			resolve( songInfo )
+		})
+	return promise
 }
 
 function parseGeneric( args )
 {
-	const msg = args.msg
-	const url = args.url
-
-	const resolve = args.resolve
-	const reject = args.reject
-
-	const err = args.err
-	const info = args.info
-
-	if ( err )
-		return reject( queryErr( err ) )
-
-	let songInfo = {}
-	songInfo.url = url
-	songInfo.title = info.title
-
-	songInfo.streamurl = info.url
-	if ( info.formats )
-	{
-		songInfo.streamurl = info.formats[0].url
-		
-		// skip rtmp links (soundcloud)
-		if ( info.formats[0].protocol )
+	const promise = new Promise(
+		( resolve, reject ) =>
 		{
-			for ( let i = info.formats.length - 1; i >= 0; i-- )
+			const url = args.url
+			const err = args.err
+			const info = args.info
+
+			if ( err )
+				return reject( queryErr( err ) )
+
+			let songInfo = {}
+			songInfo.url = url
+			songInfo.title = info.title
+
+			songInfo.streamurl = info.url
+			if ( info.formats )
 			{
-				if ( info.formats[i].protocol === 'rtmp' )
-					info.formats.splice( i, 1 )
-				else
-					songInfo.streamurl = info.formats[i].url
-			}
-		}
-
-		const desiredStream = findDesiredBitrate( info.formats )
-		if ( desiredStream )
-			songInfo.streamurl = desiredStream
-	}
-
-	if ( !info.duration )
-	{
-		probeLength( songInfo.streamurl )
-			.then( len_sec => 
+				songInfo.streamurl = info.formats[0].url
+				
+				// skip rtmp links (soundcloud)
+				if ( info.formats[0].protocol )
 				{
-					const parsedLen = parseLength( url, len_sec, reject )
-					songInfo = Object.assign( parsedLen, songInfo )
-					resolve( songInfo )
-				})
-	}
-	else
-	{
-		const len_sec = info.duration.split(':').reduce( ( acc, time ) => ( 60 * acc ) + +time )
-		const parsedLen = parseLength( url, len_sec, reject )
-		songInfo = Object.assign( parsedLen, songInfo )
-		resolve( songInfo )
-	}
+					for ( let i = info.formats.length - 1; i >= 0; i-- )
+					{
+						if ( info.formats[i].protocol === 'rtmp' )
+							info.formats.splice( i, 1 )
+						else
+							songInfo.streamurl = info.formats[i].url
+					}
+				}
+
+				const desiredStream = findDesiredBitrate( info.formats )
+				if ( desiredStream )
+					songInfo.streamurl = desiredStream
+			}
+
+			if ( !info.duration )
+			{
+				probeLength( songInfo.streamurl )
+					.then( len_sec => 
+						{
+							const parsedLen = parseLength( url, len_sec, reject )
+							songInfo = Object.assign( parsedLen, songInfo )
+							resolve( songInfo )
+						})
+			}
+			else
+			{
+				const len_sec = info.duration.split(':').reduce( ( acc, time ) => ( 60 * acc ) + +time )
+				const parsedLen = parseLength( url, len_sec, reject )
+				songInfo = Object.assign( parsedLen, songInfo )
+				resolve( songInfo )
+			}
+		})
+	return promise
 }
 
 function probeLength( url )
@@ -699,63 +699,82 @@ function probeLength( url )
 	return promise
 }
 
-function parseFile( args )
+function parseFile( url )
 {
-	const msg = args.msg
-	const url = args.url
+	const promise = new Promise(
+		( resolve, reject ) =>
+		{
+			let fn = url.split( '/' )
+			fn = fn[ fn.length - 1 ]
 
-	const resolve = args.resolve
-	const reject = args.reject
+			let songInfo = {}
+			songInfo.url = url
+			songInfo.title = fn
 
-	let fn = url.split( '/' )
-	fn = fn[ fn.length - 1 ]
+			probeLength( url )
+				.then( len_sec => 
+					{
+						const parsedLen = parseLength( url, len_sec, reject )
+						songInfo = Object.assign( parsedLen, songInfo )
 
-	let songInfo = {}
-	songInfo.url = url
-	songInfo.title = fn
+						songInfo.streamurl = url
+						resolve( songInfo )
+					})
+		})
+	return promise
+}
 
-	probeLength( url )
-		.then( len_sec => 
-			{
-				const parsedLen = parseLength( url, len_sec, reject )
-				songInfo = Object.assign( parsedLen, songInfo )
-
-				songInfo.streamurl = url
-				resolve( songInfo )
-			})
+function postQuery( songInfo )
+{
+	return songInfo
 }
 
 function queryRemote( msg, url )
 {
-	const promise = new Promise( ( resolve, reject ) =>
+	const promise = new Promise(
+		( resolve, reject ) =>
 		{
 			const youtube_urls = settings.get( 'audio', 'youtube_urls', default_youtube_urls )
 			for ( const i in youtube_urls )
 				if ( url.match( youtube_urls[i] ) )
-					return ytdl_core.getInfo( url, { filter: 'audioonly' }, ( err, info ) => parseYoutube( { msg, url, resolve, reject, err, info } ) )
+					return ytdl_core.getInfo( url, { filter: 'audioonly' },
+						( err, info ) => 
+						{
+							parseYoutube( { url, err, info } )
+								.then( songInfo => resolve( postQuery( songInfo ) ) )
+								.catch( reason => reject( reason ) )
+						})
 				
 			const additional_urls = settings.get( 'audio', 'additional_urls', default_additional_urls )
 			for ( const i in additional_urls )
 				if ( url.match( additional_urls[i] ) )
-					return youtube_dl.getInfo( url, [], ( err, info ) => parseGeneric( { msg, url, resolve, reject, err, info } ) )
+					return youtube_dl.getInfo( url, [],
+						( err, info ) =>
+						{
+							parseGeneric( { url, err, info } )
+								.then( songInfo => resolve( postQuery( songInfo ) ) )
+								.catch( reason => reject( reason ) )
+						})
 
 			const accepted_files = settings.get( 'audio', 'accepted_files', default_accepted_files )
 				for ( const i in accepted_files )
 					if ( url.match( accepted_files[i] ) )
 					{
-						request( { url: url, method: 'HEAD' }, ( error, response, body ) =>
+						request( { url: url, method: 'HEAD' },
+							( error, response ) =>
 							{
 								if ( !error && response.statusCode === 200 )
-									parseFile( { msg, url, resolve, reject } )
+									parseFile( url )
+										.then( songInfo => resolve( postQuery( songInfo ) ) )
+										.catch( reason => reject( reason ) )
 								else
 									reject( `remote file error ${ error }` )
 							})
-
 						return
 					}
-				
+
 			console.log( _.fmt( 'ERROR: could not find suitable query mode for <%s>', url ) )
-			reject( '`ERROR: could not find suitable query mode`' )
+			reject( 'ERROR: could not find suitable query mode' )
 		})
 
 	return promise
