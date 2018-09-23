@@ -729,7 +729,7 @@ function postQuery( songInfo )
 	return songInfo
 }
 
-function queryRemote( msg, url )
+function queryRemote( url )
 {
 	const promise = new Promise(
 		( resolve, reject ) =>
@@ -831,7 +831,7 @@ function playURL( url, msg )
 {
 	join_channel( msg ).then( sess =>
 		{
-			queryRemote( msg, url ).then( info =>
+			queryRemote( url ).then( info =>
 				{
 					msg.channel.send( queueSong( msg, sess, info ) )
 				}).catch( err => msg.channel.send( '```' + err + '```' ) )
@@ -868,7 +868,7 @@ commands.register( {
 		
 		join_channel( msg ).then( sess =>
 			{
-				queryRemote( msg, args ).then( info =>
+				queryRemote( args ).then( info =>
 					{
 						msg.channel.send( queueSong( msg, sess, info, true ) )
 					}).catch( err => msg.channel.send( '```' + err + '```' ) )
@@ -1399,7 +1399,7 @@ commands.register( {
 			data = JSON.parse( playlist )
 		}
 		
-		queryRemote( msg, link ).then( info =>
+		queryRemote( link ).then( info =>
 			{
 				delete info.streamurl
 
@@ -1456,7 +1456,7 @@ function queryMultiple( data, msg, name )
 				return
 			}
 			
-			queryRemote( msg, song.url ).then( info =>
+			queryRemote( song.url ).then( info =>
 				{
 					queueBuffer.push( info )
 					checkLoaded( i )
@@ -1543,7 +1543,7 @@ function queueMultiple( data, msg, name )
 					return msg.channel.send( errs )
 				})
 		}
-		queryRemote( msg, data[0].url ).then( info =>
+		queryRemote( data[0].url ).then( info =>
 			{
 				msg.channel.send( queueSong( msg, sess, info ) )
 				do_rest( info, '' )
