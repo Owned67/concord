@@ -1603,9 +1603,12 @@ commands.register( {
 		{
 			let list = ''
 			fs.readdirSync( normalizedPath ).forEach( ( file ) => {
+					let playlistCount = ''
+
 					if ( !file.endsWith( '.json' ) ) return
 					if ( !file.startsWith( msg.guild.id + '_' ) ) return
-					list += file.replace( '.json', '' ).replace( msg.guild.id + '_', '' ) + ', '
+					if ( settings.get( 'audio', 'show_playlist_count', true ) ) playlistCount = ' (' + require( path.join(normalizedPath, file) ).length + ')'
+					list += file.replace( '.json', '' ).replace( msg.guild.id + '_', '' ) + playlistCount + ', '
 				})
 			msg.channel.send( '```--- playlists ---\n' + list.substring( 0, list.length - 2 ) + '```' )
 		}
