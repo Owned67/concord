@@ -77,6 +77,43 @@ commands.register( {
 		msg.channel.send( '```' + output + '```' )
 	} })
 
+const heroNames = [ 'D.Va', 'Reinhardt', 'Roadhog', 'Winston', 'Zarya', 'Bastion', 'Genji',
+	'Hanzo', 'Junkrat', 'McCree', 'Mei', 'Pharah', 'Reaper', 'Soldier: 76',
+	'Symmetra', 'Torbjörn', 'Tracer', 'Widowmaker', 'Lúcio', 'Mercy', 'Zenyatta',
+	'Ana', 'Sombra', 'Orisa', 'Doomfist', 'Moira', 'Brigitte', 'Wrecking Ball', ]
+commands.register( {
+	category: 'fun',
+	aliases: [ 'hero', 'heroes', 'heros' ], // last one for the spelling-deficient
+	help: 'pick random overwatch heroes',
+	args: '[number]',
+	callback: ( client, msg, args ) =>
+	{
+		if ( !args )
+			args = 1
+
+		if ( isNaN( args ) || args > 6 )
+			return msg.channel.send( `invalid number` )
+
+		const results = roll( `${args}d${heroNames.length}` )
+
+		if ( results === false || results.length === 0 )
+			return msg.channel.send( `invalid syntax` )
+
+		let output = ''
+		const taken = []
+		const rolls = results[0].rolls
+		for ( let i = 0; i < rolls.length; i++ )
+		{
+			let num = rolls[i]
+			while ( taken.includes( num ) )
+				num = _.rand( 1, heroNames.length )
+			taken.push( num )
+			output += `${i+1}. ${heroNames[ num-1 ]} (${num})\n`
+		}
+
+		msg.channel.send( '```' + output + '```' )
+	} })
+
 commands.register( {
 	category: 'fun',
 	aliases: [ 'flip' ],
