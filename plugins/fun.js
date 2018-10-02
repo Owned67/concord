@@ -12,19 +12,67 @@ function timedMessage( channel, msg, delay )
 	setTimeout( () => channel.send( msg ), delay )
 }
 
+function roll( arg, raw )
+{
+	if ( !isNaN( arg ) )
+		return Math.round( Math.random() * arg )
+
+	const output = []
+
+	const regex = arg.match( /(\d+)d(\d+)/g )
+	if ( !regex ) return false
+
+	for ( const die of regex )
+	{
+		if ( !die ) break
+
+		const res = []
+		let total = 0
+		
+		const parts = /(\d+)d(\d+)/g.exec( die )
+		if ( !regex ) return false
+
+		const rolls = parts[1]
+		const sides = parts[2]
+
+		for ( let i = 0; i < rolls; i++ )
+		{
+			const val = Math.round( Math.random() * sides )
+			res.push( val )
+			total += val
+		}
+
+		output.push( { die: die, rolls: res, total: total } )
+	}
+
+	return output
+}
+
 commands.register( {
 	category: 'fun',
 	aliases: [ 'roll' ],
-	flags: [ 'no_pm' ],
-	help: 'roll an X sided dice',
-	args: '[sides=6]',
+	help: 'roll some dice',
+	args: 'sides/multidie',
 	callback: ( client, msg, args ) =>
 	{
-		if ( isNaN( args ) )
-			return msg.channel.send( `\`${ args }\` is not a number` )
+		const results = roll( args )
 
-		const max = parseInt( args ) || 6
-		msg.channel.send( _.fmt( '`%s` rolled a `%s`', _.nick( msg.member, msg.guild ), _.rand( 1, max ) ) )
+		if ( results === false || results.length === 0 )
+			return msg.channel.send( `invalid die syntax: \`${args}\`` )
+
+		if ( !isNaN( results ) )
+			return msg.channel.send( _.fmt( '`%s` rolled `%s`', _.nick( msg.member, msg.guild ), results ) )
+
+		let output = ''
+		let total = 0
+		for ( const d of results )
+		{
+			output += `${d.die}:\n\t${d.rolls.join(' ')}\n\ttotal: ${d.total}\n`
+			total += d.total
+		}
+		output += `sum: ${total}`
+
+		msg.channel.send( '```' + output + '```' )
 	} })
 
 commands.register( {
