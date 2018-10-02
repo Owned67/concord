@@ -108,7 +108,7 @@ commands.register( {
 			while ( taken.includes( num ) )
 				num = _.rand( 1, heroNames.length )
 			taken.push( num )
-			output += `${i+1}. ${heroNames[ num-1 ]} (${num})\n`
+			output += `${i+1}. ${heroNames[ num-1 ]}\n` // (${num})
 		}
 
 		msg.channel.send( '```' + output + '```' )
