@@ -5,8 +5,7 @@ a multifunctional node.js discord bot
 * `!play` music from just about any source
 * keep track of when users were `!lastseen`
 * easily `!clear` text channel messages in bulk
-* get `!insult`ed, or laugh at a terrible `!joke` (or don't)
-* useless stuff like `!roulette`, `!roll`, `!8ball` and more
+* useless stuff like `!roulette`, `!roll`, `!8ball`
 * logging when users connect, disconnect, etc...
 * **stable, clean code**
 
