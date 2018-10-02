@@ -52,6 +52,7 @@ commands.register( {
 	category: 'fun',
 	aliases: [ 'roll' ],
 	help: 'roll some dice',
+	flags: [ 'no_pm' ],
 	args: 'sides/multidie',
 	callback: ( client, msg, args ) =>
 	{
