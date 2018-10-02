@@ -160,25 +160,6 @@ commands.register( {
 
 commands.register( {
 	category: 'fun',
-	aliases: [ 'joke' ],
-	help: 'provided by your dad, laughter not guaranteed',
-	callback: ( client, msg, args ) =>
-	{
-		request( 'http://www.jokes2go.com/cgi-bin/includejoke.cgi?type=o', ( error, response, body ) =>
-			{
-				if ( !error && response.statusCode === 200 )
-				{
-					let text = _.matches( /this.document.write\('(.*)'\);/g, body )[0]
-					text = text.replace( /\s{2,}/g, '' )
-					text = text.replace( /<\s?br\s?\/?>/g, '\n' )
-					text = text.replace( /\\/g, '' )
-					msg.channel.send( '```\n' + text + '\n```' )
-				}
-			})
-	} })
-
-commands.register( {
-	category: 'fun',
 	aliases: [ '8ball' ],
 	help: 'ask the magic 8 ball a question',
 	args: 'question',
