@@ -12,11 +12,12 @@ function timedMessage( channel, msg, delay )
 	setTimeout( () => channel.send( msg ), delay )
 }
 
-function roll( arg, raw )
+function roll( arg )
 {
 	if ( !isNaN( arg ) )
-		return Math.round( Math.random() * arg )
+		return _.rand( 1, arg )
 
+	arg = arg.replace( /x/g, 'd' )
 	const output = []
 
 	const regex = arg.match( /(\d+)d(\d+)/g )
@@ -37,7 +38,7 @@ function roll( arg, raw )
 
 		for ( let i = 0; i < rolls; i++ )
 		{
-			const val = Math.round( Math.random() * sides )
+			const val = _.rand( 1, sides )	
 			res.push( val )
 			total += val
 		}
