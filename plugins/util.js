@@ -21,6 +21,7 @@ function sendReminder( channel, user, rem, uid )
 {
 	channel.send( _.fmt( '**<@%s> [reminder]** `%s`', user.id, rem.message ) )
 	delete reminders[uid]
+	remindersDirty = true
 }
 
 function updateReminders()
@@ -48,8 +49,6 @@ function updateReminders()
 					if ( chan )
 						sendReminder( chan, user, rem, uid )
 				}
-			
-			needsSave = true
 		}
 	}
 	
