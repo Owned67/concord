@@ -748,18 +748,25 @@ function queryRemote( url )
 	const promise = new Promise(
 		( resolve, reject ) =>
 		{
+			const use_ytdl_core = settings.get( 'audio', 'use_ytdl-core', true )
 			const youtube_urls = settings.get( 'audio', 'youtube_urls', default_youtube_urls )
-			for ( const i in youtube_urls )
-				if ( url.match( youtube_urls[i] ) )
-					return ytdl_core.getInfo( url, { filter: 'audioonly' },
-						( err, info ) => 
-						{
-							parseYoutube( { url, err, info } )
-								.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
-								.catch( reason => reject( reason ) )
-						})
+			if ( use_ytdl_core )
+			{
+				for ( const i in youtube_urls )
+					if ( url.match( youtube_urls[i] ) )
+						return ytdl_core.getInfo( url, { filter: 'audioonly' },
+							( err, info ) => 
+							{
+								parseYoutube( { url, err, info } )
+									.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
+									.catch( reason => reject( reason ) )
+							})
+			}
 				
-			const additional_urls = settings.get( 'audio', 'additional_urls', default_additional_urls )
+			let additional_urls = settings.get( 'audio', 'additional_urls', default_additional_urls )
+			if ( !use_ytdl_core )
+				additional_urls = Object.assign( [], additional_urls, youtube_urls )
+
 			for ( const i in additional_urls )
 				if ( url.match( additional_urls[i] ) )
 					return youtube_dl.getInfo( url, [],
@@ -771,21 +778,21 @@ function queryRemote( url )
 						})
 
 			const accepted_files = settings.get( 'audio', 'accepted_files', default_accepted_files )
-				for ( const i in accepted_files )
-					if ( url.match( accepted_files[i] ) )
-					{
-						request( { url: url, method: 'HEAD' },
-							( error, response ) =>
-							{
-								if ( !error && response.statusCode === 200 )
-									parseFile( url )
-										.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
-										.catch( reason => reject( reason ) )
-								else
-									reject( `remote file error ${ error }` )
-							})
-						return
-					}
+			for ( const i in accepted_files )
+				if ( url.match( accepted_files[i] ) )
+				{
+					request( { url: url, method: 'HEAD' },
+						( error, response ) =>
+						{
+							if ( !error && response.statusCode === 200 )
+								parseFile( url )
+									.then( songInfo => resolve( postQuery( songInfo, reject ) ) )
+									.catch( reason => reject( reason ) )
+							else
+								reject( `remote file error ${ error }` )
+						})
+					return
+				}
 
 			console.log( _.fmt( 'ERROR: could not find suitable query mode for <%s>', url ) )
 			reject( 'ERROR: could not find suitable query mode' )
