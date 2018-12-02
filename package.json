@@ -11,6 +11,7 @@
 		"start": "node index.js"
 	},
 	"dependencies": {
+		"@discordjs/uws": "^11.149.1",
 		"bufferutil": "^4.0.0",
 		"discord.js": "git+https://github.com/discordjs/discord.js.git",
 		"erlpack": "discordapp/erlpack",
@@ -21,7 +22,6 @@
 		"request": "^2.87.0",
 		"respawn": "^2.5.0",
 		"sodium": "^3.0.2",
-		"uws": "^99.0.0",
 		"youtube-dl": "^1.12.2",
 		"ytdl-core": "^0.28.0",
 		"ytsr": "^0.1.8",
