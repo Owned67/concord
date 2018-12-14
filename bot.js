@@ -54,9 +54,35 @@ client.on( 'ready', e =>
 		}
 	})
 
-client.on( 'disconnect', e => _.logEvent( client, 'disconnect', e ) )
-client.on( 'reconnecting', e => _.logEvent( client, 'reconnecting', e ) )
-client.on( 'resumed', e => _.logEvent( client, 'resumed', e ) )
+client.on( 'disconnect', e =>
+	{
+		_.logEvent( client, 'disconnect', e )
+		process.exit( 1 )
+	})
+
+client.reconnected = false
+function checkForReconnection()
+{
+	if ( !client.reconnected )
+	{
+		_.log( 'bot not reconnected after timeout, forcing restart' )
+		process.exit( 1 )
+	}
+	else
+		_.log( 'bot reconnected, cancelling restart' )
+}
+
+client.on( 'reconnecting', e =>
+	{
+		_.logEvent( client, 'reconnecting', e )
+		client.reconnected = false
+		setTimeout( checkForReconnection, settings.get( 'config', 'reconnect_timeout', 60 * 1000 ) )
+	})
+client.on( 'resumed', e =>
+	{
+		_.logEvent( client, 'resumed', e )
+		client.reconnected = true
+	})
 
 client.on( 'guildCreate', e => _.logEvent( client, 'guildCreate', e ) )
 client.on( 'guildDelete', e => _.logEvent( client, 'guildDelete', e ) )
