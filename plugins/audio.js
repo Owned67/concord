@@ -357,6 +357,11 @@ function start_player( sess, forceseek )
 		sess.dispatch.destroy()
 		delete sess.dispatch
 	}
+	if ( sess.conn.dispatcher )
+	{
+		sess.conn.dispatcher.destroy()
+		delete sess.conn.dispatcher
+	}
 	
 	sess.lastActivity = _.time()
 	
