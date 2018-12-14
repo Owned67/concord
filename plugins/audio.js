@@ -1530,7 +1530,11 @@ function queueMultiple( data, msg, name )
 		{
 			data.shift()
 			if ( data.length === 0 )
+			{
+				if ( errors !== '' )
+					msg.channel.send( errors )
 				return
+			}
 			
 			queryMultiple( data, msg, name ).then( res =>
 				{
