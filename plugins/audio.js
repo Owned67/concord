@@ -437,6 +437,9 @@ function start_player( sess, forceseek )
 			makeup = volume
 		filter = `acompressor=threshold=${threshold}:ratio=${ratio}:attack=${attack}:release=${release}:makeup=${makeup}`
 	}
+	const bassboost = settings.get( 'audio', 'bassboost', 0 )
+	if ( bassboost > 0 )
+		filter += `, bass=g=${bassboost}`
 
 	//params.push( '-f', 's16le' ) // pcm
 	params.push( '-f', 'opus' )
