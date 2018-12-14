@@ -354,9 +354,7 @@ function start_player( sess, forceseek )
 	if ( sess.timeInterval )
 		clearInterval( sess.timeInterval )
 
-	stop_playback( sess )
 	sess.playing = false
-
 	if ( sess.dispatch )
 	{
 		stop_playback( sess )
