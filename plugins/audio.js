@@ -458,8 +458,14 @@ function start_player( sess, forceseek )
 
 	//console.log( ffmpeg_cmd, params.join( ' ' ).replace( /&/g, '%26' ) )
 	sess.ffmpeg = child_process.spawn( ffmpeg_cmd, params )
-	if ( settings.get( 'audio', 'log_ffmpeg_errors', false ) )
-		sess.ffmpeg.stderr.on( 'data', e => { console.log( `[ffmpeg]  ${e.toString()}` ) })
+	sess.ffmpeg.stderr.on( 'data', e =>
+		{
+			const err = e.toString()
+			if ( song.channel && settings.get( 'audio', 'output_ffmpeg_errors', true ) )
+				song.channel.send( 'ffmpeg error:\n```' + err + '```' )
+			if ( settings.get( 'audio', 'log_ffmpeg_errors', true ) )
+				console.log( `[ffmpeg]  ${err}` )
+		})
 
 	const streamType = 'ogg/opus'
 	const passes = settings.get( 'audio', 'passes', 2 )
