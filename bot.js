@@ -78,9 +78,9 @@ client.on( 'reconnecting', e =>
 		client.reconnected = false
 		setTimeout( checkForReconnection, settings.get( 'config', 'reconnect_timeout', 60 * 1000 ) )
 	})
-client.on( 'resumed', e =>
+client.on( 'resume', e =>
 	{
-		_.logEvent( client, 'resumed', e )
+		_.logEvent( client, 'resume', e )
 		client.reconnected = true
 	})
 

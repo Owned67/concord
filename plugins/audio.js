@@ -102,7 +102,7 @@ function initAudio()
 				_.logEvent( cl, 'helper-disconnect', e )
 			})
 		cl.on( 'reconnecting', e => _.logEvent( cl, 'helper-reconnecting', e ) )
-		cl.on( 'resumed', e => _.logEvent( cl, 'helper-resumed', e ) )
+		cl.on( 'resume', e => _.logEvent( cl, 'helper-resume', e ) )
 
 		cl.on( 'guildCreate', e => _.logEvent( cl, 'helper-guildCreate', e ) )
 		cl.on( 'guildDelete', e => _.logEvent( cl, 'helper-guildDelete', e ) )
