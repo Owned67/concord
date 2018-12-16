@@ -29,9 +29,11 @@ if ( !token )
 
 		
 let initialized = false
+client.reconnected = false
 client.on( 'ready', e =>
 	{		
 		_.logEvent( client, 'ready', e )
+		client.reconnected = true
 
 		const activity = settings.get( 'botactivity', client.user.id, false )
 		if ( activity )
@@ -60,7 +62,6 @@ client.on( 'disconnect', e =>
 		process.exit( 1 )
 	})
 
-client.reconnected = false
 function checkForReconnection()
 {
 	if ( !client.reconnected )
@@ -78,11 +79,7 @@ client.on( 'reconnecting', e =>
 		client.reconnected = false
 		setTimeout( checkForReconnection, settings.get( 'config', 'reconnect_timeout', 60 * 1000 ) )
 	})
-client.on( 'resume', e =>
-	{
-		_.logEvent( client, 'resume', e )
-		client.reconnected = true
-	})
+client.on( 'resume', e => _.logEvent( client, 'resume', e ) )
 
 client.on( 'guildCreate', e => _.logEvent( client, 'guildCreate', e ) )
 client.on( 'guildDelete', e => _.logEvent( client, 'guildDelete', e ) )
