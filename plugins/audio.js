@@ -458,7 +458,6 @@ function start_player( sess, forceseek )
 	if ( bassboost > 0 )
 		filter += `, bass=g=${bassboost}`
 
-	//params.push( '-f', 's16le' ) // pcm
 	params.push( '-f', 'opus' )
 	params.push( '-acodec', 'libopus' )
 
