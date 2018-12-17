@@ -1017,7 +1017,6 @@ commands.register( {
 					playlistQuery( plurl, msg )
 					.then( data =>
 						{
-							tempMsg.delete()
 
 							if ( !savePlaylist )
 								queueMultiple( data, msg, plname )
@@ -1027,11 +1026,11 @@ commands.register( {
 									.then( res =>
 										{
 											fs.writeFileSync( filePath, JSON.stringify( res.queue, null, 4 ), 'utf8' )
-											msg.channel.send( _.fmt( 'saved `%s` songs under `%s`%s', res.queue.length, plname, res.errors ) )
+											tempMsg.edit( _.fmt( 'saved `%s` songs under `%s`%s', res.queue.length, plname, res.errors ) )
 										})
 									.catch( errs =>
 										{
-											return msg.channel.send( errs.toString() )
+											return tempMsg.edit( errs.toString() )
 										})
 							}
 						})
@@ -1040,8 +1039,7 @@ commands.register( {
 
 function searchError( tempMsg, chan, err )
 {
-	tempMsg.delete()
-	chan.send( `error searching: \`${err}\`` )
+	tempMsg.edit( `error searching: \`${err}\`` )
 	console.error( err )
 }
 
@@ -1081,8 +1079,6 @@ commands.register( {
 									if ( err )
 										return searchError( tempMsg, msg.channel, err )
 
-									tempMsg.delete()
-
 									const results = []
 									const fields = []
 									for ( const i in data.items )
@@ -1099,7 +1095,7 @@ commands.register( {
 										fields: fields,
 										footer: { text: `type \`${prefix}playresult #\` or \`${prefix}pr #\` to play a song from your last search` },
 									})
-									msg.channel.send( '', embed )
+									tempMsg.edit( '', embed )
 									searchResults[ chan.id ] = results
 								})
 						})
