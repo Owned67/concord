@@ -396,6 +396,9 @@ function start_player( sess, forceseek )
 			song.channel.send( _.fmt( '`NOW PLAYING in %s: %s [%s] (%s)`', sess.conn.channel.name, song.title, song.length, by_user ) )
 	}
 	sess.hideNP = false
+
+	if ( song.channel )
+		song.channel.concord_lastSong = song
 	
 	const guildname = sess.conn.channel.guild.name
 	const channelname = sess.conn.channel.name
@@ -451,7 +454,7 @@ function start_player( sess, forceseek )
 			makeup = volume
 		filter = `acompressor=threshold=${threshold}:ratio=${ratio}:attack=${attack}:release=${release}:makeup=${makeup}`
 	}
-	const bassboost = settings.get( 'audio', 'bassboost', 0 )
+	const bassboost = settings.get( 'audio', 'bassboost', 3 )
 	if ( bassboost > 0 )
 		filter += `, bass=g=${bassboost}`
 
@@ -1410,6 +1413,17 @@ commands.register( {
 			else
 				msg.channel.send( 'turned off looping, queue will proceed as normal' )
 		}
+	} })
+
+commands.register( {
+	category: 'audio',
+	aliases: [ 'replay', 'last' ],
+	help: 'replay the last song',
+	flags: [ 'no_pm' ],
+	callback: ( client, msg, args ) =>
+	{
+		if ( msg.channel.concord_lastSong )
+			playURL( msg.channel.concord_lastSong.url, msg )
 	} })
 
 
