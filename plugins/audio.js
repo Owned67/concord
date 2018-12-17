@@ -243,7 +243,7 @@ function create_session( bot, channel, conn )
 	return bot.concord_audioSessions[ gid ]
 }
 
-function attempt_join( bot, chan, attempts=0 )
+function attempt_join( bot, chan, resolve, reject, attempts=0 )
 {
 	chan.join().then( conn => resolve( create_session( bot, chan, conn ) ) )
 		.catch( e =>
@@ -251,7 +251,7 @@ function attempt_join( bot, chan, attempts=0 )
 				const err = e.message
 				if ( attempts <= settings.get( 'audio', 'max_join_attempts', 1 ) && 
 					err === 'Connection not established within 15 seconds.' )
-						attempt_join( bot, chan, attempts+1 )
+						attempt_join( bot, chan, resolve, reject, attempts+1 )
 				else
 					reject( `error joining channel: \`${ err }\`` )
 				
@@ -293,7 +293,7 @@ function join_channel( msg )
 								if ( success ) return
 								if ( chan.id === channel.id )
 								{
-									attempt_join( bot, chan )
+									attempt_join( bot, chan, resolve, reject )
 									success = true
 									module.exports.numSessions++
 								}
