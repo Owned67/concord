@@ -462,7 +462,7 @@ function start_player( sess, forceseek )
 	params.push( '-acodec', 'libopus' )
 
 	params.push( '-analyzeduration', '0' )
-	params.push( '-probesize', settings.get( 'audio', 'probesize', '32' ) )
+	params.push( '-probesize', settings.get( 'audio', 'probesize', '5000000' ) )
 
 	if ( settings.get( 'audio', 'ffmpeg_direct', true ) )
 		params.push( '-avioflags', 'direct' )
@@ -477,7 +477,7 @@ function start_player( sess, forceseek )
 	params.push( '-b:a', sess.conn.channel.bitrate )
 	params.push( '-af', filter )
 	
-	const loglevel = settings.get( 'audio', 'loglevel', 16 )
+	const loglevel = settings.get( 'audio', 'loglevel', 8 )
 	params.push( '-loglevel', loglevel )
 	params.push( 'pipe:1' )
 
