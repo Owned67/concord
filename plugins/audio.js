@@ -249,7 +249,7 @@ function attempt_join( bot, chan, resolve, reject, attempts=0 )
 		.catch( e =>
 			{
 				const err = e.message
-				if ( attempts <= settings.get( 'audio', 'max_join_attempts', 1 ) && 
+				if ( attempts <= settings.get( 'audio', 'max_rejoin_attempts', 1 ) && 
 					err === 'Connection not established within 15 seconds.' )
 						attempt_join( bot, chan, resolve, reject, attempts+1 )
 				else
@@ -556,7 +556,7 @@ function queryErr( err )
 
 function exceedsLength( length_seconds )
 {
-	const max_length = settings.get( 'audio', 'max_length', 62 ) * 60
+	const max_length = settings.get( 'audio', 'max_length', 7200 ) * 60
 	if ( length_seconds > max_length )
 	{
 		const thislen = formatTime( length_seconds )
@@ -590,7 +590,7 @@ function parseVars( url )
 	{
 		const v = _.matches( /vol=(.+?)(?:&|$)/g, url )[0]
 		if ( !isNaN( v ) )
-			songInfo.volOverride = Math.max( 0, Math.min( v, settings.get( 'audio', 'volume_max', 1 ) ) )
+			songInfo.volOverride = Math.max( 0, Math.min( v, settings.get( 'audio', 'volume_max', 1.5 ) ) )
 	}
 
 	return songInfo
@@ -598,7 +598,7 @@ function parseVars( url )
 
 function findDesiredBitrate( formats )
 {
-	const desired_bitrate = parseInt( settings.get( 'audio', 'desired_bitrate', false ) )
+	const desired_bitrate = parseInt( settings.get( 'audio', 'desired_bitrate', 128 ) )
 	if ( desired_bitrate )
 	{
 		const format = formats.filter( f => ( parseInt( f.audioBitrate ) === desired_bitrate || parseInt( f.abr ) === desired_bitrate ) )[0]
@@ -1079,7 +1079,7 @@ commands.register( {
 							const filter = filters.get( 'Type' ).find( o => o.name === 'Video' )
 							const options =
 								{
-									limit: settings.get( 'audio', 'max_search_results', 10 ),
+									limit: settings.get( 'audio', 'max_search_results', 5 ),
 									nextpageRef: filter.ref,
 								}
 
@@ -1666,7 +1666,7 @@ commands.register( {
 					if ( !file.startsWith( msg.guild.id + '_' ) ) return
 
 					let playlistCount = ''
-					if ( settings.get( 'audio', 'show_playlist_count', true ) ) playlistCount = ' (' + JSON.parse(fs.readFileSync(path.join(normalizedPath, file))).length + ')'
+					if ( settings.get( 'audio', 'show_playlist_count', false ) ) playlistCount = ' (' + JSON.parse(fs.readFileSync(path.join(normalizedPath, file))).length + ')'
 
 					list += file.replace( '.json', '' ).replace( msg.guild.id + '_', '' ) + playlistCount + ', '
 				})
