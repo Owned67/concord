@@ -462,8 +462,10 @@ function start_player( sess, forceseek )
 	params.push( '-acodec', 'libopus' )
 
 	params.push( '-analyzeduration', '0' )
-	params.push( '-probesize', '32' )
-	params.push( '-avioflags', 'direct' )
+	params.push( '-probesize', settings.get( 'audio', 'probesize', '32' ) )
+
+	if ( settings.get( 'audio', 'ffmpeg_direct', true ) )
+		params.push( '-avioflags', 'direct' )
 
 	params.push( '-fflags', settings.get( 'audio', 'fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' ) )
 	if ( settings.get( 'audio', 'flush_packets', true ) )
