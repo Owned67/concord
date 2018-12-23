@@ -467,7 +467,10 @@ function start_player( sess, forceseek )
 	if ( settings.get( 'audio', 'ffmpeg_direct', true ) )
 		params.push( '-avioflags', 'direct' )
 
-	params.push( '-fflags', settings.get( 'audio', 'fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' ) )
+	const fflags = settings.get( 'audio', 'fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' )
+	if ( fflags )
+		params.push( '-fflags', fflags )
+	
 	if ( settings.get( 'audio', 'flush_packets', true ) )
 		params.push( '-flush_packets', '1' )
 
