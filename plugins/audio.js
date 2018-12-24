@@ -550,7 +550,7 @@ function queryErr( err )
 
 function exceedsLength( length_seconds )
 {
-	const max_length = settings.get( 'audio', 'max_length', 7200 ) * 60
+	const max_length = settings.get( 'audio', 'max_length', 180 ) * 60
 	if ( length_seconds > max_length )
 	{
 		const thislen = formatTime( length_seconds )
