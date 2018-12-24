@@ -464,9 +464,9 @@ function start_player( sess, forceseek )
 
 	params.push( '-analyzeduration', 0 )
 	params.push( '-probesize', 1000000 ) // 1mb -- min 32, default 5000000
-		params.push( '-avioflags', 'direct' )
+	params.push( '-avioflags', 'direct' )
 	params.push( '-fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' )
-		params.push( '-flush_packets', '1' )
+	params.push( '-flush_packets', '1' )
 
 	params.push( '-ar', '48000' )
 	params.push( '-ac', '2' )
@@ -480,6 +480,11 @@ function start_player( sess, forceseek )
 
 	//console.log( ffmpeg_cmd, params.join( ' ' ).replace( /&/g, '%26' ) )
 	sess.ffmpeg = child_process.spawn( ffmpeg_cmd, params )
+
+	// workaround issue where stream ends early
+	// test case: when em starts rapping in X1osnpVqY_k
+	sess.ffmpeg.stdout._readableState.highWaterMark = 2147483647 // max 32bit int
+
 	sess.ffmpeg.stderr.on( 'data', e =>
 		{
 			const err = e.toString()
