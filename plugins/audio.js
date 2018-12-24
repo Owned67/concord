@@ -499,7 +499,7 @@ function start_player( sess, forceseek )
 	const fec = settings.get( 'audio', 'fec', true )
 	const plp = settings.get( 'audio', 'plp', 1 ) / 100 / 100
 
-	const streamOptions = { type: streamType, passes: passes, 'fec': fec, 'plp': plp, volume: false, highWaterMark: 1 }
+	const streamOptions = { type: streamType, passes: passes, 'fec': fec, 'plp': plp, volume: false, highWaterMark: 3 }
 	sess.dispatch = sess.conn.play( sess.ffmpeg.stdout, streamOptions )
 
 	if ( !sess.conn.dispatcher )
