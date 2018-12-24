@@ -458,25 +458,14 @@ function start_player( sess, forceseek )
 	if ( bassboost > 0 )
 		filter += `, bass=g=${bassboost}`
 
+	params.push( '-vn' )
 	params.push( '-f', 'opus' )
 	params.push( '-acodec', 'libopus' )
 
-	const analyzeduration = settings.get( 'audio', 'analyzeduration', '0' )
-	if ( analyzeduration )
-		params.push( '-analyzeduration', analyzeduration )
-
-	const probesize = settings.get( 'audio', 'probesize', '5000000' )
-	if ( probesize )
-		params.push( '-probesize', probesize )
-
-	if ( settings.get( 'audio', 'ffmpeg_direct', true ) )
+	params.push( '-analyzeduration', 0 )
+	params.push( '-probesize', 1000000 ) // 1mb -- min 32, default 5000000
 		params.push( '-avioflags', 'direct' )
-
-	const fflags = settings.get( 'audio', 'fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' )
-	if ( fflags )
-		params.push( '-fflags', fflags )
-	
-	if ( settings.get( 'audio', 'flush_packets', true ) )
+	params.push( '-fflags', '+fastseek+nobuffer+flush_packets+discardcorrupt' )
 		params.push( '-flush_packets', '1' )
 
 	params.push( '-ar', '48000' )
@@ -505,7 +494,7 @@ function start_player( sess, forceseek )
 	const fec = settings.get( 'audio', 'fec', true )
 	const plp = settings.get( 'audio', 'plp', 1 ) / 100 / 100
 
-	const streamOptions = { type: streamType, passes: passes, 'fec': fec, 'plp': plp }
+	const streamOptions = { type: streamType, passes: passes, 'fec': fec, 'plp': plp, volume: false, highWaterMark: 1 }
 	sess.dispatch = sess.conn.play( sess.ffmpeg.stdout, streamOptions )
 
 	if ( !sess.conn.dispatcher )
