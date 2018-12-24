@@ -592,15 +592,31 @@ function parseVars( url )
 
 function findDesiredBitrate( formats )
 {
-	const desired_bitrate = parseInt( settings.get( 'audio', 'desired_bitrate', 128 ) )
+	const audio_formats = formats.filter( f => f.type && !f.type.startsWith( 'video' ) )
+	if ( audio_formats.length > 0 )
+		formats = audio_formats
+
+	const opus_formats = formats.filter( f => f.audioEncoding === 'opus' )
+	if ( opus_formats.length > 0 )
+		formats = opus_formats
+
+	formats.forEach( f =>
+		{
+			if ( !f.audioBitrate && f.abr )
+				f.audioBitrate = f.abr
+		})
+
+	formats.sort( (a, b) => { return b.audioBitrate - a.audioBitrate } )
+
+	const desired_bitrate = parseInt( settings.get( 'audio', 'desired_bitrate', 96 ) )
 	if ( desired_bitrate )
 	{
-		const format = formats.filter( f => ( parseInt( f.audioBitrate ) === desired_bitrate || parseInt( f.abr ) === desired_bitrate ) )[0]
+		const format = formats.filter( f => parseInt( f.audioBitrate ) === desired_bitrate )[0]
 		if ( format )
 			return format.url
 	}
 
-	return false
+	return formats[0].url
 }
 
 function parseLength( url, len_sec, reject )
@@ -656,11 +672,8 @@ function parseYoutube( args )
 			songInfo.streamurl = info.url
 			if ( info.formats )
 			{
-				songInfo.streamurl = info.formats[0].url
-
 				const desiredStream = findDesiredBitrate( info.formats )
-				if ( desiredStream )
-					songInfo.streamurl = desiredStream
+				songInfo.streamurl = desiredStream
 			}
 
 			resolve( songInfo )
@@ -687,23 +700,14 @@ function parseGeneric( args )
 			songInfo.streamurl = info.url
 			if ( info.formats )
 			{
-				songInfo.streamurl = info.formats[0].url
-				
 				// skip rtmp links (soundcloud)
 				if ( info.formats[0].protocol )
-				{
 					for ( let i = info.formats.length - 1; i >= 0; i-- )
-					{
 						if ( info.formats[i].protocol === 'rtmp' )
 							info.formats.splice( i, 1 )
-						else
-							songInfo.streamurl = info.formats[i].url
-					}
-				}
 
 				const desiredStream = findDesiredBitrate( info.formats )
-				if ( desiredStream )
-					songInfo.streamurl = desiredStream
+				songInfo.streamurl = desiredStream
 			}
 
 			if ( !info.duration )
