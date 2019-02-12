@@ -29,11 +29,9 @@ if ( !token )
 
 		
 let initialized = false
-client.reconnected = false
 client.on( 'ready', e =>
 	{		
 		_.logEvent( client, 'ready', e )
-		client.reconnected = true
 
 		const activity = settings.get( 'botactivity', client.user.id, false )
 		if ( activity )
@@ -62,22 +60,9 @@ client.on( 'disconnect', e =>
 		process.exit( 1 )
 	})
 
-function checkForReconnection()
-{
-	if ( !client.reconnected )
-	{
-		_.log( 'bot not reconnected after timeout, forcing restart' )
-		process.exit( 1 )
-	}
-	else
-		_.log( 'bot reconnected, cancelling restart' )
-}
-
 client.on( 'reconnecting', e =>
 	{
 		_.logEvent( client, 'reconnecting', e )
-		client.reconnected = false
-		setTimeout( checkForReconnection, settings.get( 'config', 'reconnect_timeout', 5 * 60 * 1000 ) )
 	})
 client.on( 'resume', e => _.logEvent( client, 'resume', e ) )
 
