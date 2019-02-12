@@ -70,6 +70,9 @@ client.on( 'guildCreate', e => _.logEvent( client, 'guildCreate', e ) )
 client.on( 'guildDelete', e => _.logEvent( client, 'guildDelete', e ) )
 client.on( 'guildUnavailable', e => _.logEvent( client, 'guildUnavailable', e ) )
 
+if ( settings.get( 'config', 'debug', false ) )
+	client.on( 'debug', console.log )
+
 client.login( token )
 	.catch( e =>
 	{
