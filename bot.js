@@ -60,18 +60,22 @@ client.on( 'disconnect', e =>
 		process.exit( 1 )
 	})
 
-client.on( 'reconnecting', e =>
-	{
-		_.logEvent( client, 'reconnecting', e )
-	})
+client.on( 'reconnecting', e => { _.logEvent( client, 'reconnecting', e ) } )
 client.on( 'resume', e => _.logEvent( client, 'resume', e ) )
+client.on( 'shardReady', e => _.logEvent( client, 'shardReady', e ) )
 
 client.on( 'guildCreate', e => _.logEvent( client, 'guildCreate', e ) )
 client.on( 'guildDelete', e => _.logEvent( client, 'guildDelete', e ) )
 client.on( 'guildUnavailable', e => _.logEvent( client, 'guildUnavailable', e ) )
 
+client.on( 'invalidated', e => _.logEvent( client, 'invalidated', e ) )
+client.on( 'rateLimit', e => _.logEvent( client, 'rateLimit', e ) )
+
 if ( settings.get( 'config', 'debug', false ) )
 	client.on( 'debug', console.log )
+
+if ( settings.get( 'config', 'warn', false ) )
+	client.on( 'warn', console.log )
 
 client.login( token )
 	.catch( e =>
