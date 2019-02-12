@@ -124,10 +124,10 @@ _.shuffleArr = arr => {
 	}
 _.logEvent = ( cl, type, e ) =>
 	{
-		let ctx = ''
-		if ( e && e.id )
-			ctx = e.id
-		return _.log( `<${ cl.user.tag }> ${ type } ${ ctx }` )
+		let tag = '?'
+		if ( cl && cl.user && cl.user.tag )
+			tag = cl.user.tag
+		return _.log( `<${ tag }> ${ type } ${ JSON.stringify( e ) || '' }` )
 	}
 _.logError = ( cl, e ) =>
 	{
